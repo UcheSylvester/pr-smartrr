@@ -1,7 +1,8 @@
-import { context, getOctokit } from '@actions/github';
-import { getChangedFiles } from './get-changed-files';
-import { getReviewersUsernames } from './changed-files-reviewers';
-import { getInput } from '@actions/core';
+import { context } from '@actions/github';
+// import { getChangedFiles } from './get-changed-files';
+// import { getReviewersUsernames } from './changed-files-reviewers';
+// import { getInput } from '@actions/core';
+import { exec } from 'child_process';
 
 /**
  * STEPS
@@ -22,20 +23,24 @@ import { getInput } from '@actions/core';
 const run = async () => {
   try {
     console.log({ pr: context.payload.pull_request });
-    const baseSha =
-      context.payload.pull_request?.base.sha ||
-      '2d2f73c099310be56ace9e4aa3a922eb23ff0650';
-    const headSha =
-      context.payload.pull_request?.head.sha ||
-      '71c867b0d68417a9de4774aedb92182169028538';
+    // const baseSha =
+    //   context.payload.pull_request?.base.sha ||
+    //   '2d2f73c099310be56ace9e4aa3a922eb23ff0650';
+    // const headSha =
+    //   context.payload.pull_request?.head.sha ||
+    //   '71c867b0d68417a9de4774aedb92182169028538';
 
-    const token = getInput('github-token');
-    const Octokit = getOctokit(token);
+    // const token = getInput('github-token');
+    // const Octokit = getOctokit(token);
 
-    const changedFiles = await getChangedFiles(baseSha, headSha);
-    const usernames = await getReviewersUsernames(Octokit, changedFiles);
+    // const changedFiles = await getChangedFiles(baseSha, headSha);
+    // const usernames = await getReviewersUsernames(Octokit, changedFiles);
 
-    console.log({ usernames, changedFiles });
+    // console.log({ usernames, changedFiles });
+
+    exec('ls', (error, stdout) => {
+      console.log({ error, stdout });
+    });
   } catch (error) {
     console.log({ error });
   }
