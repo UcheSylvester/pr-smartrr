@@ -30282,6 +30282,7 @@ const core_1 = __nccwpck_require__(2186);
 const run = async () => {
     var _a, _b;
     try {
+        console.log({ pr: github_1.context.payload.pull_request });
         const baseSha = ((_a = github_1.context.payload.pull_request) === null || _a === void 0 ? void 0 : _a.base.sha) ||
             '2d2f73c099310be56ace9e4aa3a922eb23ff0650';
         const headSha = ((_b = github_1.context.payload.pull_request) === null || _b === void 0 ? void 0 : _b.head.sha) ||

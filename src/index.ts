@@ -21,6 +21,7 @@ import { getInput } from '@actions/core';
 
 const run = async () => {
   try {
+    console.log({ pr: context.payload.pull_request });
     const baseSha =
       context.payload.pull_request?.base.sha ||
       '2d2f73c099310be56ace9e4aa3a922eb23ff0650';
