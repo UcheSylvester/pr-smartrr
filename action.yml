@@ -2,6 +2,11 @@ name: 'Smartrr'
 description: 'Automatically add Pull Request reviewers based on changed files.'
 author: 'Uchenna Sylvester Okoro'
 
+inputs:
+  github-token:
+    description: 'The GitHub token to use for authentication'
+    required: true
+
 runs:
   using: 'node16'
   main: 'dist/index.js'

@@ -14,3 +14,5 @@ jobs:
 
       - name: Auto PR review requests
         uses: ./
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
