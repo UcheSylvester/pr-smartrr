@@ -8,7 +8,8 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "prepare": "husky install",
-    "lint": "eslint . --ext .ts"
+    "lint": "eslint . --ext .ts",
+    "start": "yarn build && node dist/index.js"
   },
   "dependencies": {
     "@actions/core": "^1.10.1",

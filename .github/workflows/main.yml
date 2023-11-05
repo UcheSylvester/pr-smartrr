@@ -7,10 +7,10 @@ on:
     types: [opened, synchronize, reopened]
 
 jobs:
-  build:
+  Smartrr:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
 
-      - name: Smartrr
+      - name: Auto PR review requests
         uses: ./
