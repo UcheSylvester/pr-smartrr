@@ -77,10 +77,10 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getChangedFiles = void 0;
 const child_process_1 = __nccwpck_require__(2081);
 const getChangedFiles = async (base, head) => {
-    const command = `git diff --name-only ${base} ${head}`;
+    const command = `git diff --name-only ${base}..${head}`;
     console.log({ command, base, head });
     return new Promise((resolve, reject) => {
-        (0, child_process_1.exec)(command, (error, stdout) => {
+        (0, child_process_1.exec)(command.trim(), (error, stdout) => {
             if (error) {
                 reject(error.message);
             }
