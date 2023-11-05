@@ -1,36 +1,52 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 3324:
+/***/ 5379:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getReviewersEmails = void 0;
+const child_process_1 = __nccwpck_require__(2081);
+const getReviewersEmails = async (changedFiles) => {
+    return new Promise((resolve) => {
+        (0, child_process_1.exec)(`git log --pretty=format:"%ae" -- ${changedFiles} | sort -u`, (error, stdout) => {
+            if (stdout) {
+                resolve(formatReviewers(stdout));
+            }
+        });
+    });
+};
+exports.getReviewersEmails = getReviewersEmails;
+const formatReviewers = (reviewers) => {
+    const _reviewers = reviewers
+        .trim()
+        .split('\n')
+        .filter((reviewer) => reviewer !== '');
+    return [...new Set(_reviewers)];
+};
+
+
+/***/ }),
+
+/***/ 7990:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getChangedFiles = void 0;
-const github_1 = __nccwpck_require__(5438);
 const child_process_1 = __nccwpck_require__(2081);
-const getChangedFiles = async () => {
-    var _a, _b;
-    try {
-        const baseSha = (_a = github_1.context.payload.pull_request) === null || _a === void 0 ? void 0 : _a.base.sha;
-        const headSha = (_b = github_1.context.payload.pull_request) === null || _b === void 0 ? void 0 : _b.head.sha;
-        console.log({ baseSha, headSha });
-        (0, child_process_1.exec)(`git diff --name-only ${baseSha} ${headSha}`, (error, stdout, stderr) => {
+const getChangedFiles = async (base, head) => {
+    return new Promise((resolve, reject) => {
+        (0, child_process_1.exec)(`git diff --name-only ${base} ${head}`, (error, stdout) => {
             if (error) {
-                console.log(`error: ${error.message}`);
-                return;
+                reject(error.message);
             }
-            if (stderr) {
-                console.log(`stderr: ${stderr}`);
-                return;
-            }
-            console.log({ stdout });
+            resolve(stdout);
         });
-    }
-    catch (error) {
-        console.log(error);
-    }
+    });
 };
 exports.getChangedFiles = getChangedFiles;
 
@@ -28472,7 +28488,8 @@ var exports = __webpack_exports__;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const github_1 = __nccwpck_require__(5438);
-const get_changed_files_1 = __nccwpck_require__(3324);
+const get_changed_files_1 = __nccwpck_require__(7990);
+const changed_files_reviewers_1 = __nccwpck_require__(5379);
 /**
  * STEPS
  * V0.0.1
@@ -28490,9 +28507,18 @@ const get_changed_files_1 = __nccwpck_require__(3324);
  */
 const run = async () => {
     var _a, _b;
-    const creator = (_b = (_a = github_1.context.payload.pull_request) === null || _a === void 0 ? void 0 : _a.user) === null || _b === void 0 ? void 0 : _b.login;
-    const changedFiles = (0, get_changed_files_1.getChangedFiles)();
-    console.log({ creator, changedFiles });
+    try {
+        const baseSha = ((_a = github_1.context.payload.pull_request) === null || _a === void 0 ? void 0 : _a.base.sha) ||
+            '2d2f73c099310be56ace9e4aa3a922eb23ff0650';
+        const headSha = ((_b = github_1.context.payload.pull_request) === null || _b === void 0 ? void 0 : _b.head.sha) ||
+            '71c867b0d68417a9de4774aedb92182169028538';
+        const changedFiles = await (0, get_changed_files_1.getChangedFiles)(baseSha, headSha);
+        const reviewers = await (0, changed_files_reviewers_1.getReviewersEmails)(changedFiles);
+        console.log({ reviewers, changedFiles });
+    }
+    catch (error) {
+        console.log({ error });
+    }
 };
 run();
 

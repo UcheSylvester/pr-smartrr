@@ -1,5 +1,7 @@
-import { context } from '@actions/github';
-import { getChangedFiles } from './helpers/get-changed-files';
+import { context, getOctokit } from '@actions/github';
+import { getChangedFiles } from './get-changed-files';
+import { getReviewersUsernames } from './changed-files-reviewers';
+import { getInput } from '@actions/core';
 
 /**
  * STEPS
@@ -16,12 +18,26 @@ import { getChangedFiles } from './helpers/get-changed-files';
  * Allow for default reviewers incase there are no reviewers found (e.g. for new files)
  *
  */
+
 const run = async () => {
-  const creator = context.payload.pull_request?.user?.login;
+  try {
+    const baseSha =
+      context.payload.pull_request?.base.sha ||
+      '2d2f73c099310be56ace9e4aa3a922eb23ff0650';
+    const headSha =
+      context.payload.pull_request?.head.sha ||
+      '71c867b0d68417a9de4774aedb92182169028538';
 
-  const changedFiles = getChangedFiles();
+    const token = getInput('github-token');
+    const Octokit = getOctokit(token);
 
-  console.log({ creator, changedFiles });
+    const changedFiles = await getChangedFiles(baseSha, headSha);
+    const usernames = await getReviewersUsernames(Octokit, changedFiles);
+
+    console.log({ usernames, changedFiles });
+  } catch (error) {
+    console.log({ error });
+  }
 };
 
 run();
