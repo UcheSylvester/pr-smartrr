@@ -1,0 +1,11 @@
+name: 'Smartrr'
+description: 'Automatically add Pull Request reviewers based on changed files.'
+author: 'Uchenna Sylvester Okoro'
+
+runs:
+  using: 'node16'
+  main: 'dist/index.js'
+
+branding:
+  icon: 'bookmark'
+  color: 'green'
