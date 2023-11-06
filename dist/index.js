@@ -80,7 +80,7 @@ const getChangedFiles = async (base, head) => {
     const command = `git diff --name-only ${base.trim()} ${head.trim()}`;
     console.log({ command, base, head });
     return new Promise((resolve, reject) => {
-        (0, child_process_1.exec)(command.trim(), (error, stdout) => {
+        (0, child_process_1.exec)(command.trim(), { encoding: 'buffer' }, (error, stdout) => {
             if (error) {
                 reject(error.message);
             }
