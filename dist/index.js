@@ -13,6 +13,9 @@ exports.INVALID_REVIEWERS = [
     'GitHub',
     'dependabot[bot]',
     'dependabot-preview[bot]',
+    'dependabot-preview',
+    'dependabot',
+    '',
     null,
     undefined,
 ];
@@ -87,6 +90,24 @@ const getReviewersUsernames = async (Octokit, emails) => {
     return usernames.filter((username) => !constants_1.INVALID_REVIEWERS.includes(username));
 };
 exports.getReviewersUsernames = getReviewersUsernames;
+
+
+/***/ }),
+
+/***/ 1877:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getValidReviewers = void 0;
+const constants_1 = __nccwpck_require__(5105);
+const getValidReviewers = ({ reviewers, creator, maxReviewers = 2, }) => {
+    return reviewers
+        .filter((reviewer) => ![...constants_1.INVALID_REVIEWERS, creator].includes(reviewer))
+        .slice(0, maxReviewers);
+};
+exports.getValidReviewers = getValidReviewers;
 
 
 /***/ }),
@@ -30311,11 +30332,13 @@ const github_1 = __nccwpck_require__(5438);
 const core_1 = __nccwpck_require__(2186);
 const constants_1 = __nccwpck_require__(5105);
 const helpers_1 = __nccwpck_require__(863);
+const get_valid_reviewers_1 = __nccwpck_require__(1877);
 const run = async () => {
-    var _a, _b;
+    var _a, _b, _c;
     try {
         const baseSha = ((_a = github_1.context.payload.pull_request) === null || _a === void 0 ? void 0 : _a.base.sha) || constants_1.BASE_SHA;
         const headSha = ((_b = github_1.context.payload.pull_request) === null || _b === void 0 ? void 0 : _b.head.sha) || constants_1.HEAD_SHA;
+        const creator = (_c = github_1.context.payload.pull_request) === null || _c === void 0 ? void 0 : _c.user.login;
         const token = (0, core_1.getInput)('github-token');
         const Octokit = (0, github_1.getOctokit)(token);
         const changedFiles = await (0, helpers_1.getChangedFiles)(baseSha, headSha);
@@ -30325,6 +30348,13 @@ const run = async () => {
         if (!(emails === null || emails === void 0 ? void 0 : emails.length))
             return (0, core_1.warning)('No reviewers found!');
         const usernames = await (0, helpers_1.getReviewersUsernames)(Octokit, emails);
+        const validReviewers = (0, get_valid_reviewers_1.getValidReviewers)({
+            reviewers: usernames,
+            creator,
+            maxReviewers: 3,
+        });
+        if (!(validReviewers === null || validReviewers === void 0 ? void 0 : validReviewers.length))
+            return (0, core_1.warning)('No valid reviewers found!');
         console.log({ usernames, changedFiles });
     }
     catch (error) {
