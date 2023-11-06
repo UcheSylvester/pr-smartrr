@@ -14,7 +14,6 @@ const core_1 = __nccwpck_require__(2186);
 const getReviewersEmails = async (changedFiles) => {
     return new Promise((resolve) => {
         (0, child_process_1.exec)(`git log --pretty=format:"%ae" -- ${changedFiles} | sort -u`, (error, stdout) => {
-            console.log({ error, stdout });
             if (stdout) {
                 resolve(formatReviewers(stdout));
             }
@@ -43,7 +42,6 @@ const formatReviewers = (reviewers) => {
         .trim()
         .split('\n')
         .filter((reviewer) => reviewer !== '' && !constants_1.INVALID_REVIEWERS.includes(reviewer));
-    console.log({ reviewers, _reviewers });
     return [...new Set(_reviewers)];
 };
 
@@ -30273,6 +30271,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const github_1 = __nccwpck_require__(5438);
 const get_changed_files_1 = __nccwpck_require__(7990);
 const changed_files_reviewers_1 = __nccwpck_require__(5379);
+const core_1 = __nccwpck_require__(2186);
 const constants_1 = __nccwpck_require__(5105);
 /**
  * STEPS
@@ -30295,10 +30294,10 @@ const run = async () => {
         console.log({ pr: github_1.context.payload.pull_request });
         const baseSha = ((_a = github_1.context.payload.pull_request) === null || _a === void 0 ? void 0 : _a.base.sha) || constants_1.BASE_SHA;
         const headSha = ((_b = github_1.context.payload.pull_request) === null || _b === void 0 ? void 0 : _b.head.sha) || constants_1.HEAD_SHA;
-        // const token = getInput('github-token');
-        // const Octokit = getOctokit(token);
+        const token = (0, core_1.getInput)('github-token');
+        const Octokit = (0, github_1.getOctokit)(token);
         const changedFiles = await (0, get_changed_files_1.getChangedFiles)(baseSha, headSha);
-        const usernames = await (0, changed_files_reviewers_1.getReviewersEmails)(changedFiles);
+        const usernames = await (0, changed_files_reviewers_1.getReviewersUsernames)(Octokit, changedFiles);
         console.log({ usernames, changedFiles });
     }
     catch (error) {
