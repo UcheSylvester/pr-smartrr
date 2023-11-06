@@ -55,7 +55,7 @@ const formatReviewers = (reviewers) => {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.INVALID_REVIEWERS = exports.DEFAULT_ERROR_MESSAGE = void 0;
+exports.HEAD_SHA = exports.BASE_SHA = exports.INVALID_REVIEWERS = exports.DEFAULT_ERROR_MESSAGE = void 0;
 exports.DEFAULT_ERROR_MESSAGE = 'An unexpected error occurred!';
 exports.INVALID_REVIEWERS = [
     'GitHub',
@@ -64,6 +64,8 @@ exports.INVALID_REVIEWERS = [
     null,
     undefined,
 ];
+exports.BASE_SHA = '2d2f73c099310be56ace9e4aa3a922eb23ff0650';
+exports.HEAD_SHA = '71c867b0d68417a9de4774aedb92182169028538';
 
 
 /***/ }),
@@ -30291,10 +30293,8 @@ const run = async () => {
     var _a, _b;
     try {
         console.log({ pr: github_1.context.payload.pull_request });
-        const baseSha = ((_a = github_1.context.payload.pull_request) === null || _a === void 0 ? void 0 : _a.base.sha) ||
-            '2d2f73c099310be56ace9e4aa3a922eb23ff0650';
-        const headSha = ((_b = github_1.context.payload.pull_request) === null || _b === void 0 ? void 0 : _b.head.sha) ||
-            '71c867b0d68417a9de4774aedb92182169028538';
+        const baseSha = (_a = github_1.context.payload.pull_request) === null || _a === void 0 ? void 0 : _a.base.sha;
+        const headSha = (_b = github_1.context.payload.pull_request) === null || _b === void 0 ? void 0 : _b.head.sha;
         const token = (0, core_1.getInput)('github-token');
         const Octokit = (0, github_1.getOctokit)(token);
         const changedFiles = await (0, get_changed_files_1.getChangedFiles)(baseSha, headSha);

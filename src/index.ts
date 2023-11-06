@@ -22,12 +22,8 @@ import { getInput } from '@actions/core';
 const run = async () => {
   try {
     console.log({ pr: context.payload.pull_request });
-    const baseSha =
-      context.payload.pull_request?.base.sha ||
-      '2d2f73c099310be56ace9e4aa3a922eb23ff0650';
-    const headSha =
-      context.payload.pull_request?.head.sha ||
-      '71c867b0d68417a9de4774aedb92182169028538';
+    const baseSha = context.payload.pull_request?.base.sha;
+    const headSha = context.payload.pull_request?.head.sha;
 
     const token = getInput('github-token');
     const Octokit = getOctokit(token);
