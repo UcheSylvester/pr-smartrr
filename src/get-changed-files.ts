@@ -4,7 +4,7 @@ export const getChangedFiles = async (base: string, head: string) => {
   const command = `git diff --name-only ${base.trim()} ${head.trim()}`;
   console.log({ command, base, head });
   return new Promise<string>((resolve, reject) => {
-    exec(command.trim(), { encoding: 'buffer' }, (error, stdout) => {
+    exec(command.trim(), { shell: '/bin/sh' }, (error, stdout) => {
       if (error) {
         reject(error.message);
       }
