@@ -13,7 +13,7 @@ export const sendReviewRequests = async ({
 }: SendReviewRequests) => {
   console.log({ reviewers, context, repo: context.repo });
 
-  return Octokit.rest.pulls.requestReviewers({
+  return await Octokit.rest.pulls.requestReviewers({
     owner: context.repo.owner,
     repo: context.repo.repo,
     pull_number: context.payload.pull_request?.number as number,

@@ -151,7 +151,7 @@ exports.sendReviewRequests = void 0;
 const sendReviewRequests = async ({ Octokit, reviewers, context, }) => {
     var _a;
     console.log({ reviewers, context, repo: context.repo });
-    return Octokit.rest.pulls.requestReviewers({
+    return await Octokit.rest.pulls.requestReviewers({
         owner: context.repo.owner,
         repo: context.repo.repo,
         pull_number: (_a = context.payload.pull_request) === null || _a === void 0 ? void 0 : _a.number,
