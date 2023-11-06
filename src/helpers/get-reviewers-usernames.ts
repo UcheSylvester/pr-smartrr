@@ -1,8 +1,8 @@
 import { INVALID_REVIEWERS } from '../constants';
-import { getOctokit } from '@actions/github';
+import { TOctokit } from '../types';
 
 export const getReviewersUsernames = async (
-  Octokit: ReturnType<typeof getOctokit>,
+  Octokit: TOctokit,
   emails: string[]
 ) => {
   const usernames = await Promise.all(
@@ -14,5 +14,7 @@ export const getReviewersUsernames = async (
     })
   );
 
-  return usernames.filter((username) => !INVALID_REVIEWERS.includes(username));
+  return usernames.filter(
+    (username): username is string => !INVALID_REVIEWERS.includes(username)
+  );
 };

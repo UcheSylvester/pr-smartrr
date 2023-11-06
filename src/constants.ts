@@ -4,6 +4,9 @@ export const INVALID_REVIEWERS = [
   'GitHub',
   'dependabot[bot]',
   'dependabot-preview[bot]',
+  'dependabot-preview',
+  'dependabot',
+  '',
   null,
   undefined,
 ];

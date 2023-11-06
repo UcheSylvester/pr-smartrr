@@ -6,11 +6,13 @@ import {
   getReviewersEmails,
   getReviewersUsernames,
 } from './helpers';
+import { getValidReviewers } from './helpers/get-valid-reviewers';
 
 const run = async () => {
   try {
     const baseSha = context.payload.pull_request?.base.sha || BASE_SHA;
     const headSha = context.payload.pull_request?.head.sha || HEAD_SHA;
+    const creator = context.payload.pull_request?.user.login;
 
     const token = getInput('github-token');
     const Octokit = getOctokit(token);
@@ -22,6 +24,14 @@ const run = async () => {
     if (!emails?.length) return warning('No reviewers found!');
 
     const usernames = await getReviewersUsernames(Octokit, emails);
+
+    const validReviewers = getValidReviewers({
+      reviewers: usernames,
+      creator,
+      maxReviewers: 3,
+    });
+
+    if (!validReviewers?.length) return warning('No valid reviewers found!');
 
     console.log({ usernames, changedFiles });
   } catch (error) {
