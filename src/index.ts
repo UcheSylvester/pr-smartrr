@@ -1,10 +1,11 @@
 import { context, getOctokit } from '@actions/github';
 import { getInput, warning } from '@actions/core';
-import { BASE_SHA, HEAD_SHA } from './constants';
+import { BASE_SHA, DEFAULT_MAX_REVIEWERS, HEAD_SHA } from './constants';
 import {
   getChangedFiles,
   getReviewersEmails,
   getReviewersUsernames,
+  sendReviewRequests,
 } from './helpers';
 import { getValidReviewers } from './helpers/get-valid-reviewers';
 
@@ -14,7 +15,11 @@ const run = async () => {
     const headSha = context.payload.pull_request?.head.sha || HEAD_SHA;
     const creator = context.payload.pull_request?.user.login;
 
+    const maxReviewers = getInput('max-reviewers');
     const token = getInput('github-token');
+
+    console.log({ maxReviewers, type: typeof maxReviewers });
+
     const Octokit = getOctokit(token);
 
     const changedFiles = await getChangedFiles(baseSha, headSha);
@@ -28,12 +33,22 @@ const run = async () => {
     const validReviewers = getValidReviewers({
       reviewers: usernames,
       creator,
-      maxReviewers: 3,
+      maxReviewers: isNaN(Number(maxReviewers))
+        ? DEFAULT_MAX_REVIEWERS
+        : Number(maxReviewers),
     });
 
     if (!validReviewers?.length) return warning('No valid reviewers found!');
 
-    console.log({ usernames, changedFiles });
+    console.log({ validReviewers });
+
+    const response = sendReviewRequests({
+      Octokit,
+      reviewers: validReviewers,
+      context,
+    });
+
+    console.log({ response });
   } catch (error) {
     console.log({ error });
   }

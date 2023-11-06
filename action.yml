@@ -6,6 +6,10 @@ inputs:
   github-token:
     description: 'The GitHub token to use for authentication'
     required: true
+  max-reviewers:
+    description: 'The maximum number of reviewers to add to a Pull Request'
+    required: false
+    default: '2'
 
 runs:
   using: 'node16'

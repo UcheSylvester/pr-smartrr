@@ -7,7 +7,7 @@
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.HEAD_SHA = exports.BASE_SHA = exports.INVALID_REVIEWERS = exports.DEFAULT_ERROR_MESSAGE = void 0;
+exports.DEFAULT_MAX_REVIEWERS = exports.HEAD_SHA = exports.BASE_SHA = exports.INVALID_REVIEWERS = exports.DEFAULT_ERROR_MESSAGE = void 0;
 exports.DEFAULT_ERROR_MESSAGE = 'An unexpected error occurred!';
 exports.INVALID_REVIEWERS = [
     'GitHub',
@@ -21,6 +21,7 @@ exports.INVALID_REVIEWERS = [
 ];
 exports.BASE_SHA = '2d2f73c099310be56ace9e4aa3a922eb23ff0650';
 exports.HEAD_SHA = '71c867b0d68417a9de4774aedb92182169028538';
+exports.DEFAULT_MAX_REVIEWERS = 2;
 
 
 /***/ }),
@@ -135,6 +136,29 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 __exportStar(__nccwpck_require__(3694), exports);
 __exportStar(__nccwpck_require__(3324), exports);
 __exportStar(__nccwpck_require__(5397), exports);
+__exportStar(__nccwpck_require__(2498), exports);
+
+
+/***/ }),
+
+/***/ 2498:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.sendReviewRequests = void 0;
+const sendReviewRequests = async ({ Octokit, reviewers, context, }) => {
+    var _a;
+    console.log({ reviewers, context, repo: context.repo });
+    return Octokit.rest.pulls.requestReviewers({
+        owner: context.repo.owner,
+        repo: context.repo.repo,
+        pull_number: (_a = context.payload.pull_request) === null || _a === void 0 ? void 0 : _a.number,
+        reviewers,
+    });
+};
+exports.sendReviewRequests = sendReviewRequests;
 
 
 /***/ }),
@@ -30339,7 +30363,9 @@ const run = async () => {
         const baseSha = ((_a = github_1.context.payload.pull_request) === null || _a === void 0 ? void 0 : _a.base.sha) || constants_1.BASE_SHA;
         const headSha = ((_b = github_1.context.payload.pull_request) === null || _b === void 0 ? void 0 : _b.head.sha) || constants_1.HEAD_SHA;
         const creator = (_c = github_1.context.payload.pull_request) === null || _c === void 0 ? void 0 : _c.user.login;
+        const maxReviewers = (0, core_1.getInput)('max-reviewers');
         const token = (0, core_1.getInput)('github-token');
+        console.log({ maxReviewers, type: typeof maxReviewers });
         const Octokit = (0, github_1.getOctokit)(token);
         const changedFiles = await (0, helpers_1.getChangedFiles)(baseSha, headSha);
         if (!changedFiles)
@@ -30351,11 +30377,19 @@ const run = async () => {
         const validReviewers = (0, get_valid_reviewers_1.getValidReviewers)({
             reviewers: usernames,
             creator,
-            maxReviewers: 3,
+            maxReviewers: isNaN(Number(maxReviewers))
+                ? constants_1.DEFAULT_MAX_REVIEWERS
+                : Number(maxReviewers),
         });
         if (!(validReviewers === null || validReviewers === void 0 ? void 0 : validReviewers.length))
             return (0, core_1.warning)('No valid reviewers found!');
-        console.log({ usernames, changedFiles });
+        console.log({ validReviewers });
+        const response = (0, helpers_1.sendReviewRequests)({
+            Octokit,
+            reviewers: validReviewers,
+            context: github_1.context,
+        });
+        console.log({ response });
     }
     catch (error) {
         console.log({ error });
