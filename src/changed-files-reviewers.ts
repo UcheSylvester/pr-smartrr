@@ -8,7 +8,7 @@ export const getReviewersEmails = async (changedFiles: string) => {
     exec(
       `git log --pretty=format:"%ae" -- ${changedFiles} | sort -u`,
       (error, stdout) => {
-        console.log({ error });
+        console.log({ error, stdout });
         if (stdout) {
           resolve(formatReviewers(stdout));
         }

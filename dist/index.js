@@ -14,7 +14,7 @@ const core_1 = __nccwpck_require__(2186);
 const getReviewersEmails = async (changedFiles) => {
     return new Promise((resolve) => {
         (0, child_process_1.exec)(`git log --pretty=format:"%ae" -- ${changedFiles} | sort -u`, (error, stdout) => {
-            console.log({ error });
+            console.log({ error, stdout });
             if (stdout) {
                 resolve(formatReviewers(stdout));
             }
@@ -80,9 +80,8 @@ exports.getChangedFiles = void 0;
 const child_process_1 = __nccwpck_require__(2081);
 const getChangedFiles = async (base, head) => {
     const command = `git diff --name-only ${base} ${head}`;
-    console.log({ command, head, base });
     return new Promise((resolve, reject) => {
-        (0, child_process_1.exec)(command.trim(), (error, stdout, stderr) => {
+        (0, child_process_1.exec)(command, (error, stdout, stderr) => {
             if (error) {
                 reject(new Error(error.message));
                 return;
