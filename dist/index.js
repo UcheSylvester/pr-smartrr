@@ -1,74 +1,32 @@
 /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
-/***/ 5379:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getReviewersUsernames = exports.getReviewersEmails = void 0;
-const child_process_1 = __nccwpck_require__(2081);
-const constants_1 = __nccwpck_require__(5105);
-const core_1 = __nccwpck_require__(2186);
-const getReviewersEmails = async (changedFiles) => {
-    return new Promise((resolve) => {
-        (0, child_process_1.exec)(`git log --pretty=format:"%ae" -- ${changedFiles} | sort -u`, (error, stdout) => {
-            console.log({ error });
-            if (stdout) {
-                resolve(formatReviewers(stdout));
-            }
-        });
-    });
-};
-exports.getReviewersEmails = getReviewersEmails;
-const getReviewersUsernames = async (Octokit, changedFiles) => {
-    const emails = await (0, exports.getReviewersEmails)(changedFiles);
-    console.log({ emails });
-    if (!emails) {
-        (0, core_1.warning)('No reviewers found');
-        return [];
-    }
-    const usernames = await Promise.all(emails.map(async (email) => {
-        const { data } = await Octokit.rest.search.users({ q: email });
-        if (data.items.length > 0) {
-            return data.items[0].login;
-        }
-    }));
-    return usernames.filter((username) => !constants_1.INVALID_REVIEWERS.includes(username));
-};
-exports.getReviewersUsernames = getReviewersUsernames;
-const formatReviewers = (reviewers) => {
-    const _reviewers = reviewers
-        .trim()
-        .split('\n')
-        .filter((reviewer) => reviewer !== '' && constants_1.INVALID_REVIEWERS.includes(reviewer));
-    return [...new Set(_reviewers)];
-};
-
-
-/***/ }),
-
 /***/ 5105:
 /***/ ((__unused_webpack_module, exports) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.INVALID_REVIEWERS = exports.DEFAULT_ERROR_MESSAGE = void 0;
+exports.DEFAULT_MAX_REVIEWERS = exports.HEAD_SHA = exports.BASE_SHA = exports.INVALID_REVIEWERS = exports.DEFAULT_ERROR_MESSAGE = void 0;
 exports.DEFAULT_ERROR_MESSAGE = 'An unexpected error occurred!';
 exports.INVALID_REVIEWERS = [
     'GitHub',
     'dependabot[bot]',
     'dependabot-preview[bot]',
+    'dependabot-preview',
+    'dependabot',
+    '',
     null,
     undefined,
 ];
+exports.BASE_SHA = '2d2f73c099310be56ace9e4aa3a922eb23ff0650';
+exports.HEAD_SHA = '71c867b0d68417a9de4774aedb92182169028538';
+exports.DEFAULT_MAX_REVIEWERS = 2;
 
 
 /***/ }),
 
-/***/ 7990:
+/***/ 3324:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -78,15 +36,149 @@ exports.getChangedFiles = void 0;
 const child_process_1 = __nccwpck_require__(2081);
 const getChangedFiles = async (base, head) => {
     return new Promise((resolve, reject) => {
-        (0, child_process_1.exec)(`git diff --name-only ${base} ${head}`, (error, stdout) => {
-            if (error) {
-                reject(error.message);
-            }
+        (0, child_process_1.exec)(`git diff --name-only ${base} ${head}`, (error, stdout, stderr) => {
+            if (error)
+                return reject(new Error(error.message));
+            if (stderr)
+                return reject(new Error(stderr));
             resolve(stdout);
         });
     });
 };
 exports.getChangedFiles = getChangedFiles;
+
+
+/***/ }),
+
+/***/ 5397:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getReviewersEmails = void 0;
+const child_process_1 = __nccwpck_require__(2081);
+const utils_1 = __nccwpck_require__(918);
+const getReviewersEmails = async (changedFiles) => {
+    return new Promise((resolve) => {
+        (0, child_process_1.exec)(`git log --pretty=format:"%ae" -- ${changedFiles} | sort -u`, (error, stdout) => {
+            if (stdout) {
+                resolve((0, utils_1.formatReviewers)(stdout));
+            }
+        });
+    });
+};
+exports.getReviewersEmails = getReviewersEmails;
+
+
+/***/ }),
+
+/***/ 3694:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getReviewersUsernames = void 0;
+const constants_1 = __nccwpck_require__(5105);
+const getReviewersUsernames = async (Octokit, emails) => {
+    const usernames = await Promise.all(emails.map(async (email) => {
+        const { data } = await Octokit.rest.search.users({ q: email });
+        if (data.items.length > 0) {
+            return data.items[0].login;
+        }
+    }));
+    return usernames.filter((username) => !constants_1.INVALID_REVIEWERS.includes(username));
+};
+exports.getReviewersUsernames = getReviewersUsernames;
+
+
+/***/ }),
+
+/***/ 1877:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.getValidReviewers = void 0;
+const constants_1 = __nccwpck_require__(5105);
+const getValidReviewers = ({ reviewers, creator, maxReviewers = 2, }) => {
+    return reviewers
+        .filter((reviewer) => ![...constants_1.INVALID_REVIEWERS, creator].includes(reviewer))
+        .slice(0, maxReviewers);
+};
+exports.getValidReviewers = getValidReviewers;
+
+
+/***/ }),
+
+/***/ 863:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+__exportStar(__nccwpck_require__(3694), exports);
+__exportStar(__nccwpck_require__(3324), exports);
+__exportStar(__nccwpck_require__(5397), exports);
+__exportStar(__nccwpck_require__(2498), exports);
+
+
+/***/ }),
+
+/***/ 2498:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.sendReviewRequests = void 0;
+const sendReviewRequests = async ({ Octokit, reviewers, context, }) => {
+    var _a;
+    console.log({ reviewers, context, repo: context.repo });
+    return Octokit.rest.pulls.requestReviewers({
+        owner: context.repo.owner,
+        repo: context.repo.repo,
+        pull_number: (_a = context.payload.pull_request) === null || _a === void 0 ? void 0 : _a.number,
+        reviewers,
+    });
+};
+exports.sendReviewRequests = sendReviewRequests;
+
+
+/***/ }),
+
+/***/ 918:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.formatReviewers = void 0;
+const constants_1 = __nccwpck_require__(5105);
+const formatReviewers = (reviewers) => {
+    const _reviewers = reviewers
+        .trim()
+        .split('\n')
+        .filter((reviewer) => reviewer !== '' && !constants_1.INVALID_REVIEWERS.includes(reviewer));
+    return [...new Set(_reviewers)];
+};
+exports.formatReviewers = formatReviewers;
 
 
 /***/ }),
@@ -30261,36 +30353,43 @@ var exports = __webpack_exports__;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const github_1 = __nccwpck_require__(5438);
-const get_changed_files_1 = __nccwpck_require__(7990);
-const changed_files_reviewers_1 = __nccwpck_require__(5379);
 const core_1 = __nccwpck_require__(2186);
-/**
- * STEPS
- * V0.0.1
- * Get PR creator
- * Get changed files
- * Get committers of the changed files
- * Compare committers and take the top 3 committers (excluding the creator) with the most commits as reviewers
- * Get reviewers emails
- * Get github username from emails
- * Add reviewers to PR
- *
- * V0.0.2
- * Allow for default reviewers incase there are no reviewers found (e.g. for new files)
- *
- */
+const constants_1 = __nccwpck_require__(5105);
+const helpers_1 = __nccwpck_require__(863);
+const get_valid_reviewers_1 = __nccwpck_require__(1877);
 const run = async () => {
-    var _a, _b;
+    var _a, _b, _c;
     try {
-        const baseSha = ((_a = github_1.context.payload.pull_request) === null || _a === void 0 ? void 0 : _a.base.sha) ||
-            '2d2f73c099310be56ace9e4aa3a922eb23ff0650';
-        const headSha = ((_b = github_1.context.payload.pull_request) === null || _b === void 0 ? void 0 : _b.head.sha) ||
-            '71c867b0d68417a9de4774aedb92182169028538';
+        const baseSha = ((_a = github_1.context.payload.pull_request) === null || _a === void 0 ? void 0 : _a.base.sha) || constants_1.BASE_SHA;
+        const headSha = ((_b = github_1.context.payload.pull_request) === null || _b === void 0 ? void 0 : _b.head.sha) || constants_1.HEAD_SHA;
+        const creator = (_c = github_1.context.payload.pull_request) === null || _c === void 0 ? void 0 : _c.user.login;
+        const maxReviewers = (0, core_1.getInput)('max-reviewers');
         const token = (0, core_1.getInput)('github-token');
+        console.log({ maxReviewers, type: typeof maxReviewers });
         const Octokit = (0, github_1.getOctokit)(token);
-        const changedFiles = await (0, get_changed_files_1.getChangedFiles)(baseSha, headSha);
-        const usernames = await (0, changed_files_reviewers_1.getReviewersUsernames)(Octokit, changedFiles);
-        console.log({ usernames, changedFiles });
+        const changedFiles = await (0, helpers_1.getChangedFiles)(baseSha, headSha);
+        if (!changedFiles)
+            return (0, core_1.warning)('No changed files found!');
+        const emails = await (0, helpers_1.getReviewersEmails)(changedFiles);
+        if (!(emails === null || emails === void 0 ? void 0 : emails.length))
+            return (0, core_1.warning)('No reviewers found!');
+        const usernames = await (0, helpers_1.getReviewersUsernames)(Octokit, emails);
+        const validReviewers = (0, get_valid_reviewers_1.getValidReviewers)({
+            reviewers: usernames,
+            creator,
+            maxReviewers: isNaN(Number(maxReviewers))
+                ? constants_1.DEFAULT_MAX_REVIEWERS
+                : Number(maxReviewers),
+        });
+        if (!(validReviewers === null || validReviewers === void 0 ? void 0 : validReviewers.length))
+            return (0, core_1.warning)('No valid reviewers found!');
+        console.log({ validReviewers });
+        const response = (0, helpers_1.sendReviewRequests)({
+            Octokit,
+            reviewers: validReviewers,
+            context: github_1.context,
+        });
+        console.log({ response });
     }
     catch (error) {
         console.log({ error });

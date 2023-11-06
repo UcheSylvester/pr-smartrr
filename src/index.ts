@@ -1,40 +1,54 @@
 import { context, getOctokit } from '@actions/github';
-import { getChangedFiles } from './get-changed-files';
-import { getReviewersUsernames } from './changed-files-reviewers';
-import { getInput } from '@actions/core';
-
-/**
- * STEPS
- * V0.0.1
- * Get PR creator
- * Get changed files
- * Get committers of the changed files
- * Compare committers and take the top 3 committers (excluding the creator) with the most commits as reviewers
- * Get reviewers emails
- * Get github username from emails
- * Add reviewers to PR
- *
- * V0.0.2
- * Allow for default reviewers incase there are no reviewers found (e.g. for new files)
- *
- */
+import { getInput, warning } from '@actions/core';
+import { BASE_SHA, DEFAULT_MAX_REVIEWERS, HEAD_SHA } from './constants';
+import {
+  getChangedFiles,
+  getReviewersEmails,
+  getReviewersUsernames,
+  sendReviewRequests,
+} from './helpers';
+import { getValidReviewers } from './helpers/get-valid-reviewers';
 
 const run = async () => {
   try {
-    const baseSha =
-      context.payload.pull_request?.base.sha ||
-      '2d2f73c099310be56ace9e4aa3a922eb23ff0650';
-    const headSha =
-      context.payload.pull_request?.head.sha ||
-      '71c867b0d68417a9de4774aedb92182169028538';
+    const baseSha = context.payload.pull_request?.base.sha || BASE_SHA;
+    const headSha = context.payload.pull_request?.head.sha || HEAD_SHA;
+    const creator = context.payload.pull_request?.user.login;
 
+    const maxReviewers = getInput('max-reviewers');
     const token = getInput('github-token');
+
+    console.log({ maxReviewers, type: typeof maxReviewers });
+
     const Octokit = getOctokit(token);
 
     const changedFiles = await getChangedFiles(baseSha, headSha);
-    const usernames = await getReviewersUsernames(Octokit, changedFiles);
+    if (!changedFiles) return warning('No changed files found!');
 
-    console.log({ usernames, changedFiles });
+    const emails = await getReviewersEmails(changedFiles);
+    if (!emails?.length) return warning('No reviewers found!');
+
+    const usernames = await getReviewersUsernames(Octokit, emails);
+
+    const validReviewers = getValidReviewers({
+      reviewers: usernames,
+      creator,
+      maxReviewers: isNaN(Number(maxReviewers))
+        ? DEFAULT_MAX_REVIEWERS
+        : Number(maxReviewers),
+    });
+
+    if (!validReviewers?.length) return warning('No valid reviewers found!');
+
+    console.log({ validReviewers });
+
+    const response = sendReviewRequests({
+      Octokit,
+      reviewers: validReviewers,
+      context,
+    });
+
+    console.log({ response });
   } catch (error) {
     console.log({ error });
   }

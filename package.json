@@ -4,17 +4,19 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "build": "tsc && ncc build lib/index.js",
+    "clean": "rimraf dist && rimraf lib",
+    "build": "yarn clean && tsc && ncc build lib/index.js",
+    "start": "yarn build && node dist/index.js",
     "test": "jest",
     "test:watch": "jest --watch",
     "prepare": "husky install",
-    "lint": "eslint . --ext .ts",
-    "start": "yarn build && node dist/index.js"
+    "lint": "eslint . --ext .ts"
   },
   "dependencies": {
     "@actions/core": "^1.10.1",
     "@actions/github": "^6.0.0",
-    "@vercel/ncc": "^0.38.1"
+    "@vercel/ncc": "^0.38.1",
+    "rimraf": "^5.0.5"
   },
   "devDependencies": {
     "@types/jest": "^29.5.7",
