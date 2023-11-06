@@ -2,6 +2,7 @@ import { context, getOctokit } from '@actions/github';
 import { getChangedFiles } from './get-changed-files';
 import { getReviewersUsernames } from './changed-files-reviewers';
 import { getInput } from '@actions/core';
+import { BASE_SHA, HEAD_SHA } from './constants';
 
 /**
  * STEPS
@@ -22,8 +23,8 @@ import { getInput } from '@actions/core';
 const run = async () => {
   try {
     console.log({ pr: context.payload.pull_request });
-    const baseSha = context.payload.pull_request?.base.sha;
-    const headSha = context.payload.pull_request?.head.sha;
+    const baseSha = context.payload.pull_request?.base.sha || BASE_SHA;
+    const headSha = context.payload.pull_request?.head.sha || HEAD_SHA;
 
     const token = getInput('github-token');
     const Octokit = getOctokit(token);

@@ -8,7 +8,6 @@ export const getReviewersEmails = async (changedFiles: string) => {
     exec(
       `git log --pretty=format:"%ae" -- ${changedFiles} | sort -u`,
       (error, stdout) => {
-        console.log({ error, stdout });
         if (stdout) {
           resolve(formatReviewers(stdout));
         }
@@ -40,12 +39,11 @@ export const getReviewersUsernames = async (
 };
 
 const formatReviewers = (reviewers: string) => {
-  console.log({ reviewers });
   const _reviewers = reviewers
     .trim()
     .split('\n')
     .filter(
-      (reviewer) => reviewer !== '' && INVALID_REVIEWERS.includes(reviewer)
+      (reviewer) => reviewer !== '' && !INVALID_REVIEWERS.includes(reviewer)
     );
 
   return [...new Set(_reviewers)];
