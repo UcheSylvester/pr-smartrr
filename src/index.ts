@@ -36,10 +36,6 @@ const run = async () => {
     const usernames = await getReviewersUsernames(Octokit, changedFiles);
 
     console.log({ usernames, changedFiles });
-
-    // exec('ls', (error, stdout) => {
-    //   console.log({ error, stdout });
-    // });
   } catch (error) {
     console.log({ error });
   }

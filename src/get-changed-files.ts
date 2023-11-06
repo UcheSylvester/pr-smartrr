@@ -1,14 +1,20 @@
 import { exec } from 'child_process';
 
 export const getChangedFiles = async (base: string, head: string) => {
-  const command = `git diff --name-only ${base.trim()} ${head.trim()}`;
-  console.log({ command, base, head });
+  const command = `git diff --name-only ${base} ${head}`;
+  console.log({ command, head, base });
   return new Promise<string>((resolve, reject) => {
-    exec(command.trim(), { shell: '/bin/sh' }, (error, stdout) => {
+    exec(command.trim(), (error, stdout, stderr) => {
       if (error) {
-        reject(error.message);
+        reject(new Error(error.message));
+        return;
       }
-      resolve(stdout as unknown as string);
+      if (stderr) {
+        reject(new Error(stderr));
+        return;
+      }
+      console.log({ stdout });
+      resolve(stdout);
     });
   });
 };

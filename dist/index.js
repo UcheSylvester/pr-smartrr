@@ -77,13 +77,19 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getChangedFiles = void 0;
 const child_process_1 = __nccwpck_require__(2081);
 const getChangedFiles = async (base, head) => {
-    const command = `git diff --name-only ${base.trim()} ${head.trim()}`;
-    console.log({ command, base, head });
+    const command = `git diff --name-only ${base} ${head}`;
+    console.log({ command, head, base });
     return new Promise((resolve, reject) => {
-        (0, child_process_1.exec)(command.trim(), { shell: '/bin/sh' }, (error, stdout) => {
+        (0, child_process_1.exec)(command.trim(), (error, stdout, stderr) => {
             if (error) {
-                reject(error.message);
+                reject(new Error(error.message));
+                return;
             }
+            if (stderr) {
+                reject(new Error(stderr));
+                return;
+            }
+            console.log({ stdout });
             resolve(stdout);
         });
     });
@@ -30294,9 +30300,6 @@ const run = async () => {
         const changedFiles = await (0, get_changed_files_1.getChangedFiles)(baseSha, headSha);
         const usernames = await (0, changed_files_reviewers_1.getReviewersUsernames)(Octokit, changedFiles);
         console.log({ usernames, changedFiles });
-        // exec('ls', (error, stdout) => {
-        //   console.log({ error, stdout });
-        // });
     }
     catch (error) {
         console.log({ error });
