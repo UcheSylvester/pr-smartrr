@@ -39,6 +39,7 @@ const getReviewersUsernames = async (Octokit, changedFiles) => {
 };
 exports.getReviewersUsernames = getReviewersUsernames;
 const formatReviewers = (reviewers) => {
+    console.log({ reviewers });
     const _reviewers = reviewers
         .trim()
         .split('\n')
