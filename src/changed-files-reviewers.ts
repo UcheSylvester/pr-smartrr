@@ -40,6 +40,7 @@ export const getReviewersUsernames = async (
 };
 
 const formatReviewers = (reviewers: string) => {
+  console.log({ reviewers });
   const _reviewers = reviewers
     .trim()
     .split('\n')
