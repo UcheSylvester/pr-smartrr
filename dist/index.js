@@ -211,11 +211,12 @@ const run = async () => {
             (0, core_1.warning)('No valid reviewers found!');
             return;
         }
-        await (0, helpers_1.sendReviewRequests)({
+        const response = await (0, helpers_1.sendReviewRequests)({
             Octokit,
             reviewers: validReviewers,
             context: github_1.context,
         });
+        console.log(response);
         (0, core_1.info)(`Review requests sent to ${validReviewers.join(', ')}`);
     }
     catch (e) {

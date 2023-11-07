@@ -47,12 +47,13 @@ export const run = async () => {
       return;
     }
 
-    await sendReviewRequests({
+    const response = await sendReviewRequests({
       Octokit,
       reviewers: validReviewers,
       context,
     });
 
+    console.log(response);
     info(`Review requests sent to ${validReviewers.join(', ')}`);
   } catch (e) {
     console.log(e);

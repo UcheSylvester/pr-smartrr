@@ -1,5 +1,5 @@
 name: 'Smartrr'
-description: 'Automatically add Pull Request reviewers based on changed files.'
+description: 'Automatically request reviews on pull requests based on changed files.'
 author: 'Uchenna Sylvester Okoro'
 
 inputs:
