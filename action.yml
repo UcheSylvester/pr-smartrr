@@ -16,5 +16,5 @@ runs:
   main: 'dist/index.js'
 
 branding:
-  icon: 'bookmark'
+  icon: 'book-open'
   color: 'green'
