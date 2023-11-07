@@ -1,5 +1,5 @@
 import { context, getOctokit } from '@actions/github';
-import { getInput, warning } from '@actions/core';
+import { getInput, info, setFailed, warning } from '@actions/core';
 import { BASE_SHA, DEFAULT_MAX_REVIEWERS, HEAD_SHA } from './constants';
 import {
   getChangedFiles,
@@ -21,10 +21,16 @@ export const run = async () => {
     const Octokit = getOctokit(token);
 
     const changedFiles = await getChangedFiles(baseSha, headSha);
-    if (!changedFiles) return warning('No changed files found!');
+    if (!changedFiles) {
+      warning('No changed files found!');
+      return;
+    }
 
     const emails = await getReviewersEmails(changedFiles);
-    if (!emails.length) return warning('No reviewers found!');
+    if (!emails.length) {
+      warning('No reviewers found!');
+      return;
+    }
 
     const usernames = await getReviewersUsernames(Octokit, emails);
 
@@ -36,7 +42,10 @@ export const run = async () => {
         : Number(maxReviewers),
     });
 
-    if (!validReviewers?.length) return warning('No valid reviewers found!');
+    if (!validReviewers?.length) {
+      warning('No valid reviewers found!');
+      return;
+    }
 
     await sendReviewRequests({
       Octokit,
@@ -44,9 +53,10 @@ export const run = async () => {
       context,
     });
 
-    // console.log({ response });
-  } catch (error) {
-    console.log({ error });
+    info(`Review requests sent to ${validReviewers.join(', ')}`);
+  } catch (e) {
+    console.log(e);
+    setFailed((e as Error).message);
   }
 };
 

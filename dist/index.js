@@ -62,10 +62,13 @@ exports.getReviewersEmails = void 0;
 const child_process_1 = __nccwpck_require__(2081);
 const utils_1 = __nccwpck_require__(918);
 const getReviewersEmails = async (changedFiles) => {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
         (0, child_process_1.exec)(`git log --pretty=format:"%ae" -- ${changedFiles} | sort -u`, (error, stdout) => {
             if (stdout) {
                 resolve((0, utils_1.formatReviewers)(stdout));
+            }
+            else {
+                reject(new Error(error === null || error === void 0 ? void 0 : error.message));
             }
         });
     });
@@ -187,11 +190,15 @@ const run = async () => {
         const token = (0, core_1.getInput)('github-token');
         const Octokit = (0, github_1.getOctokit)(token);
         const changedFiles = await (0, helpers_1.getChangedFiles)(baseSha, headSha);
-        if (!changedFiles)
-            return (0, core_1.warning)('No changed files found!');
+        if (!changedFiles) {
+            (0, core_1.warning)('No changed files found!');
+            return;
+        }
         const emails = await (0, helpers_1.getReviewersEmails)(changedFiles);
-        if (!emails.length)
-            return (0, core_1.warning)('No reviewers found!');
+        if (!emails.length) {
+            (0, core_1.warning)('No reviewers found!');
+            return;
+        }
         const usernames = await (0, helpers_1.getReviewersUsernames)(Octokit, emails);
         const validReviewers = (0, helpers_1.getValidReviewers)({
             reviewers: usernames,
@@ -200,17 +207,20 @@ const run = async () => {
                 ? constants_1.DEFAULT_MAX_REVIEWERS
                 : Number(maxReviewers),
         });
-        if (!(validReviewers === null || validReviewers === void 0 ? void 0 : validReviewers.length))
-            return (0, core_1.warning)('No valid reviewers found!');
+        if (!(validReviewers === null || validReviewers === void 0 ? void 0 : validReviewers.length)) {
+            (0, core_1.warning)('No valid reviewers found!');
+            return;
+        }
         await (0, helpers_1.sendReviewRequests)({
             Octokit,
             reviewers: validReviewers,
             context: github_1.context,
         });
-        // console.log({ response });
+        (0, core_1.info)(`Review requests sent to ${validReviewers.join(', ')}`);
     }
-    catch (error) {
-        console.log({ error });
+    catch (e) {
+        console.log(e);
+        (0, core_1.setFailed)(e.message);
     }
 };
 exports.run = run;
