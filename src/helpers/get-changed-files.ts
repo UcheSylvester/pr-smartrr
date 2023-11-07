@@ -7,7 +7,5 @@ export const getChangedFiles = async (base: string, head: string) => {
       if (stderr) return reject(new Error(stderr));
       resolve(stdout);
     });
-
-    console.log("Hello World!");
   });
 };
