@@ -4,6 +4,10 @@ on:
   pull_request:
     types: [opened]
 
+defaults:
+  run:
+    shell: 'bash'
+
 jobs:
   Smartrr:
     runs-on: ubuntu-latest
