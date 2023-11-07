@@ -48,12 +48,13 @@ defaults:
     shell: 'bash'
 
 jobs:
-  RequestReviews:
+  request-reviews:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
         with:
+          # Note: this is required for the action to work
           fetch-depth: 0
 
       - name: Auto PR review requests
