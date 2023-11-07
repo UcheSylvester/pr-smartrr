@@ -5,8 +5,9 @@ export const formatReviewers = (reviewers: string) => {
     .trim()
     .split('\n')
     .reduce<string[]>((acc, reviewer) => {
-      if (reviewer && !INVALID_REVIEWERS.includes(reviewer.trim())) {
-        acc.push(reviewer.trim());
+      const _reviewer = reviewer.trim();
+      if (reviewer && !INVALID_REVIEWERS.includes(_reviewer)) {
+        acc.push(_reviewer);
       }
       return acc;
     }, []);
