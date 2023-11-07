@@ -1,8 +1,11 @@
 {
-  "name": "smartrr",
-  "version": "1.0.0",
+  "name": "pr-smartrr",
+  "version": "0.1.0",
   "main": "index.js",
   "license": "MIT",
+  "author": {
+    "name": "Uchenna Sylvester Okoro"
+  },
   "scripts": {
     "clean": "rimraf dist && rimraf lib",
     "build": "pnpm clean && tsc && ncc build lib/index.js",

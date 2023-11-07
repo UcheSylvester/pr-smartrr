@@ -43,6 +43,7 @@ const getChangedFiles = async (base, head) => {
                 return reject(new Error(error.message));
             if (stderr)
                 return reject(new Error(stderr));
+            console.log('changed files', stdout);
             resolve(stdout);
         });
     });

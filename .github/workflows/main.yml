@@ -9,7 +9,7 @@ defaults:
     shell: 'bash'
 
 jobs:
-  Smartrr:
+  request-reviews:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository

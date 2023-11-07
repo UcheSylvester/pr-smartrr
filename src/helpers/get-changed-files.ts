@@ -5,6 +5,7 @@ export const getChangedFiles = async (base: string, head: string) => {
     exec(`git diff --name-only ${base} ${head}`, (error, stdout, stderr) => {
       if (error) return reject(new Error(error.message));
       if (stderr) return reject(new Error(stderr));
+      console.log('changed files', stdout);
       resolve(stdout);
     });
   });
