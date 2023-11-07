@@ -18,7 +18,7 @@
 
 This GitHub Action automatically requests reviews on pull requests based on changed files.
 
-It does this by checking the teammates with commits on those changed files and adding them as reviewers to pull requests. This means you do not need to manually provide a list of reviewers to this action.
+It does this by checking the teammates with commits on those changed files and adding them as reviewers to pull requests. This means you do not need to manually provide a list of reviewers for this action.
 
 ## Inputs
 
