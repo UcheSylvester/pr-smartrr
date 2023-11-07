@@ -1,6 +1,6 @@
 import { context, getOctokit } from '@actions/github';
 import { getInput, info, setFailed, warning } from '@actions/core';
-import { BASE_SHA, DEFAULT_MAX_REVIEWERS, HEAD_SHA } from './constants';
+import { DEFAULT_MAX_REVIEWERS } from './constants';
 import {
   getChangedFiles,
   getReviewersEmails,
@@ -11,8 +11,14 @@ import {
 
 export const run = async () => {
   try {
-    const baseSha = context.payload.pull_request?.base.sha || BASE_SHA;
-    const headSha = context.payload.pull_request?.head.sha || HEAD_SHA;
+    // no need to proceed if there is no PR
+    if (!context.payload.pull_request) {
+      warning('No pull request found!');
+      return;
+    }
+
+    const baseSha = context.payload.pull_request?.base.sha;
+    const headSha = context.payload.pull_request?.head.sha;
     const creator = context.payload.pull_request?.user.login;
 
     const maxReviewers = getInput('max-reviewers');

@@ -183,8 +183,13 @@ const helpers_1 = __nccwpck_require__(863);
 const run = async () => {
     var _a, _b, _c;
     try {
-        const baseSha = ((_a = github_1.context.payload.pull_request) === null || _a === void 0 ? void 0 : _a.base.sha) || constants_1.BASE_SHA;
-        const headSha = ((_b = github_1.context.payload.pull_request) === null || _b === void 0 ? void 0 : _b.head.sha) || constants_1.HEAD_SHA;
+        // no need to proceed if there is no PR
+        if (!github_1.context.payload.pull_request) {
+            (0, core_1.warning)('No pull request found!');
+            return;
+        }
+        const baseSha = (_a = github_1.context.payload.pull_request) === null || _a === void 0 ? void 0 : _a.base.sha;
+        const headSha = (_b = github_1.context.payload.pull_request) === null || _b === void 0 ? void 0 : _b.head.sha;
         const creator = (_c = github_1.context.payload.pull_request) === null || _c === void 0 ? void 0 : _c.user.login;
         const maxReviewers = (0, core_1.getInput)('max-reviewers');
         const token = (0, core_1.getInput)('github-token');
