@@ -11,8 +11,6 @@ export const sendReviewRequests = async ({
   reviewers,
   context,
 }: SendReviewRequests) => {
-  console.log({ reviewers, context, repo: context.repo });
-
   return await Octokit.rest.pulls.requestReviewers({
     owner: context.repo.owner,
     repo: context.repo.repo,

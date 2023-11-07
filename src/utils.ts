@@ -4,9 +4,7 @@ export const formatReviewers = (reviewers: string) => {
   const _reviewers = reviewers
     .trim()
     .split('\n')
-    .filter(
-      (reviewer) => reviewer !== '' && !INVALID_REVIEWERS.includes(reviewer)
-    );
+    .filter((reviewer) => reviewer && !INVALID_REVIEWERS.includes(reviewer));
 
   return [...new Set(_reviewers)];
 };

@@ -14,7 +14,9 @@ export const getReviewersUsernames = async (
     })
   );
 
-  return usernames.filter(
+  const _usernames = usernames.filter(
     (username): username is string => !INVALID_REVIEWERS.includes(username)
   );
+
+  return [...new Set(_usernames)];
 };

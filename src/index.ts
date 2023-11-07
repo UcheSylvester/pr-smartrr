@@ -5,11 +5,11 @@ import {
   getChangedFiles,
   getReviewersEmails,
   getReviewersUsernames,
+  getValidReviewers,
   sendReviewRequests,
 } from './helpers';
-import { getValidReviewers } from './helpers/get-valid-reviewers';
 
-const run = async () => {
+export const run = async () => {
   try {
     const baseSha = context.payload.pull_request?.base.sha || BASE_SHA;
     const headSha = context.payload.pull_request?.head.sha || HEAD_SHA;
@@ -18,15 +18,13 @@ const run = async () => {
     const maxReviewers = getInput('max-reviewers');
     const token = getInput('github-token');
 
-    console.log({ maxReviewers, type: typeof maxReviewers });
-
     const Octokit = getOctokit(token);
 
     const changedFiles = await getChangedFiles(baseSha, headSha);
     if (!changedFiles) return warning('No changed files found!');
 
     const emails = await getReviewersEmails(changedFiles);
-    if (!emails?.length) return warning('No reviewers found!');
+    if (!emails.length) return warning('No reviewers found!');
 
     const usernames = await getReviewersUsernames(Octokit, emails);
 
@@ -40,15 +38,13 @@ const run = async () => {
 
     if (!validReviewers?.length) return warning('No valid reviewers found!');
 
-    console.log({ validReviewers });
-
-    const response = sendReviewRequests({
+    await sendReviewRequests({
       Octokit,
       reviewers: validReviewers,
       context,
     });
 
-    console.log({ response });
+    // console.log({ response });
   } catch (error) {
     console.log({ error });
   }
