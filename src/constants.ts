@@ -9,6 +9,8 @@ export const INVALID_REVIEWERS = [
   '',
   null,
   undefined,
+  'undefined',
+  'null',
 ];
 
 export const BASE_SHA = '2d2f73c099310be56ace9e4aa3a922eb23ff0650';
