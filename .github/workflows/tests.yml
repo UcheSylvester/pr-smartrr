@@ -4,11 +4,6 @@ on:
   push:
     branches:
       - 'master'
-    paths:
-      - 'src/**'
-      - 'tests/**'
-      - 'package-lock.json'
-      - '.github/workflows/tests.yml'
   pull_request:
     types: [opened, synchronize, reopened]
 
@@ -21,5 +16,5 @@ jobs:
         with:
           node-version: 18
           cache: 'yarn'
-      - run: yarn install --frozen-lockfile
+      - run: yarn
       - run: yarn test
