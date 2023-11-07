@@ -5,8 +5,8 @@
   "license": "MIT",
   "scripts": {
     "clean": "rimraf dist && rimraf lib",
-    "build": "yarn clean && tsc && ncc build lib/index.js",
-    "start": "yarn build && node dist/index.js",
+    "build": "pnpm clean && tsc && ncc build lib/index.js",
+    "start": "pnpm build && node dist/index.js",
     "test": "jest",
     "test:watch": "jest --watch",
     "prepare": "husky install",
